@@ -2,35 +2,37 @@ import React from "react";
 import { Fragment, useEffect } from "react";
 import { CgMouse } from "react-icons/all";
 import "./Home.css";
-import Product from "./Product.js";
+import ProductCard from "./ProductCard";
 import MetaData from "../layout/MetaData";
-import { getProduct } from "../../actions/productAction";
+import { clearErrors, getProduct } from "../../actions/productAction";
 import { useSelector, useDispatch } from "react-redux";
-
-//Temporary Object....
-// const product = {
-//   name: "samosa",
-//   images: [
-//     {
-//       url: "https://static.toiimg.com/thumb/61050397.cms?imgsize=246859&width=800&height=800",
-//     },
-//   ],
-//   price: "30",
-//   _id: "prasad",
-// };
+import Loader from "../layout/Loader/Loader";
+import { useAlert } from "react-alert";
 
 const Home = () => {
+  const alert = useAlert();
   const dispatch = useDispatch();
-  const { loading, error, products, productsCount } = useSelector(
+  const { loading, error, products } = useSelector(
     (state) => state.products
   );
 
   useEffect(() => {
+
+    if (error) {
+    //  return alert.error(error);
+    alert.error(error);
+      dispatch(clearErrors())
+    }
     dispatch(getProduct());
-  }, [dispatch]);
+  }, [dispatch, error,alert]);
 
   return (
-    <Fragment>
+
+    <fragement>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Fragment>
       <MetaData title="Foodie" />
       <div className="banner">
         <p>Welcome to Foodie</p>
@@ -46,9 +48,16 @@ const Home = () => {
       <h2 className="homeHeading">Featured Product</h2>
 
       <div className="container" id="container">
-        {products && products.map((product) => <Product product={product} />)}
+        {/* {products && products.map((product) => <Product product={product} />)} */}
+        {products &&
+              products.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
       </div>
     </Fragment>
+
+      )}
+    </fragement>
   );
 };
 
